@@ -29,7 +29,8 @@ public class OrderMapper {
                 order.getTraveler().getFirstName(),
                 order.getTraveler().getLastName(),
                 order.getPrice(),
-                order.getDriver().getUser().getId()
+                order.getDriver().getUser().getId(),
+                order.getDriver().getUser().getPhone()
         );
     }
 

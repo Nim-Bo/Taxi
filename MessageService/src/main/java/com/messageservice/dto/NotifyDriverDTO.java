@@ -1,4 +1,4 @@
-package com.taxiuser.dto.response;
+package com.messageservice.dto;
 
 public record NotifyDriverDTO(
         String firstName,
@@ -8,3 +8,4 @@ public record NotifyDriverDTO(
         String phone
 ) {
 }
+

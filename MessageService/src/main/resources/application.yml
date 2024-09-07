@@ -3,7 +3,7 @@ spring:
     name: Taxi-User
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
     properties:
       hibernate:
@@ -26,8 +26,6 @@ rabbitmq:
   routing:
     notify-driver: notifier_key
     reporter: reporter_key
-  exchange:
-    name: exchange
 
 logging:
   level:
@@ -36,28 +34,4 @@ logging:
         security: trace
 
 server:
-  port: 8080
-
-taxi:
-  distance:
-    max: 1000.0
-
-sms-api:
-  config:
-    X-API-KEY: "YOUR-TOKEN-HERE"
-    line-number: "30004505000017"
-  url:
-    like-to-like: "https://api.sms.ir/v1/send/likeToLike"
-
-pricing:
-  base-price:
-    10000
-  commission-percent:
-    17
-  vehicle:
-    CAR:
-      price-per-meter: 7.5
-    MOTOR:
-      price-per-meter: 5
-    TRUCK:
-      price-per-meter: 10
+  port: 9090
