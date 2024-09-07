@@ -2,8 +2,8 @@ package com.taxiuser.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.taxiuser.dto.request.OrderRequestDTO;
-import com.taxiuser.dto.response.NotifyDriverDTO;
-import com.taxiuser.dto.response.OrderResponseDTO;
+import com.taxiuser.dto.response.*;
+import com.taxiuser.enums.ReportType;
 import com.taxiuser.exception.DriverNotFound;
 import com.taxiuser.exception.IncompleteOrderExists;
 import com.taxiuser.exception.OrderNotFound;
@@ -38,6 +38,7 @@ public class OrderService {
     PropertiesService propertiesService;
     OrderRepository orderRepository;
     NotifyDriverProducer notifyDriverProducer;
+    ReporterService reporterService;
 
     public OrderResponseDTO order(OrderRequestDTO orderDTO, String authentication) throws IncompleteOrderExists, DriverNotFound, UserIsDriving, JsonProcessingException {
         String token = authentication.substring(7);
@@ -79,6 +80,8 @@ public class OrderService {
 
         NotifyDriverDTO notifyDriverDTO = OrderMapper.orderToNotifyDriverDTO(order);
         notifyDriverProducer.notify(notifyDriverDTO);
+
+        reporterService.report(new ReportDTO(ReportType.NEW_ORDER, new NewOrderReport(orderWithId.getId())));
 
         return OrderMapper.orderToOrderDTO(orderWithId);
     }

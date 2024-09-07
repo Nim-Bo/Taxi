@@ -1,5 +1,6 @@
 package com.taxiuser.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.taxiuser.service.PaymentService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -16,14 +17,14 @@ public class PaymentController {
 
     PaymentService paymentService;
 
-    @PostMapping("/myOrder")
-    public ResponseEntity<String> payOrder(@RequestHeader("Authorization") String authorization) throws BadRequestException {
+    @PutMapping("/myOrder")
+    public ResponseEntity<String> payOrder(@RequestHeader("Authorization") String authorization) throws BadRequestException, JsonProcessingException {
         String response = paymentService.payOrder(authorization);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/charge")
-    public ResponseEntity<String> charge(@RequestParam Integer amount, @RequestHeader("Authorization") String authorization) throws BadRequestException {
+    @PutMapping("/charge")
+    public ResponseEntity<String> charge(@RequestParam Integer amount, @RequestHeader("Authorization") String authorization) throws BadRequestException, JsonProcessingException {
         String response = paymentService.charge(amount, authorization);
         return ResponseEntity.ok(response);
     }

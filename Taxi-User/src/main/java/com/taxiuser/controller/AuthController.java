@@ -1,5 +1,6 @@
 package com.taxiuser.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.taxiuser.dto.request.UserLoginDTO;
 import com.taxiuser.dto.request.UserRegistrationDTO;
 import com.taxiuser.dto.response.UserResponseDTO;
@@ -37,7 +38,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup/complete")
-    public ResponseEntity<UserResponseDTO> completeSignUp(@RequestBody UserRegistrationDTO userRegistrationDTO, @RequestHeader("Authorization") String authorization) throws RegistrationFailed {
+    public ResponseEntity<UserResponseDTO> completeSignUp(@RequestBody UserRegistrationDTO userRegistrationDTO, @RequestHeader("Authorization") String authorization) throws RegistrationFailed, JsonProcessingException {
         UserResponseDTO response = authService.completeSignup(userRegistrationDTO, authorization);
         return ResponseEntity.ok(response);
     }

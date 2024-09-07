@@ -1,15 +1,15 @@
 package com.taxiuser.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.taxiuser.dto.request.UserLoginDTO;
 import com.taxiuser.dto.request.UserRegistrationDTO;
-import com.taxiuser.dto.response.UserResponseDTO;
+import com.taxiuser.dto.response.*;
+import com.taxiuser.enums.ReportType;
 import com.taxiuser.enums.Role;
 import com.taxiuser.exception.*;
 import com.taxiuser.mapper.UserMapper;
 import com.taxiuser.model.User;
 import com.taxiuser.repository.UserRepository;
-import com.taxiuser.dto.response.SimpleResponse;
-import com.taxiuser.dto.response.TokenResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -44,7 +44,7 @@ public class AuthService {
     PasswordEncoder passwordEncoder;
     AuthenticationManager authenticationManager;
     CustomUserDetailsService customUserDetailsService;
-
+    ReporterService reporterService;
 
     public String signUp(String phone) throws PhoneNumberInUse, SMSFailed, RegistrationFailed {
         if (userRepository.existsByPhone(phone))
@@ -85,7 +85,7 @@ public class AuthService {
         return new TokenResponse(jwtService.generateSignupToken(phone), 30);
     }
 
-    public UserResponseDTO completeSignup(UserRegistrationDTO userRegistrationDTO, String authentication) throws RegistrationFailed {
+    public UserResponseDTO completeSignup(UserRegistrationDTO userRegistrationDTO, String authentication) throws RegistrationFailed, JsonProcessingException {
         String token = authentication.substring(7);
         String phone = jwtService.extractSubject(token);
         // Check Phone
@@ -141,6 +141,7 @@ public class AuthService {
         } finally {
             lock.unlock();
         }
+        reporterService.report(new ReportDTO(ReportType.NEW_SIGNUP, new NewSignupReport(userWithId.getId())));
         return UserMapper.INSTANCE.userToUserDTO(userWithId);
     }
 

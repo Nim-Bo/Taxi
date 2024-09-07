@@ -1,5 +1,11 @@
 package com.taxiuser.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.taxiuser.dto.response.ChargeReport;
+import com.taxiuser.dto.response.NewOrderReport;
+import com.taxiuser.dto.response.OrderPaymentReport;
+import com.taxiuser.dto.response.ReportDTO;
+import com.taxiuser.enums.ReportType;
 import com.taxiuser.exception.OrderNotFound;
 import com.taxiuser.model.Driver;
 import com.taxiuser.model.Order;
@@ -24,8 +30,9 @@ public class PaymentService {
     UserRepository userRepository;
     OrderRepository orderRepository;
     PropertiesService propertiesService;
+    ReporterService reporterService;
 
-    public String payOrder(String authentication) throws BadRequestException {
+    public String payOrder(String authentication) throws BadRequestException, JsonProcessingException {
         String token = authentication.substring(7);
         String username = jwtService.extractSubject(token);
 
@@ -52,10 +59,12 @@ public class PaymentService {
         driverUser.setBalance(driverUser.getBalance() + (order.getPrice() - (order.getPrice()*commission)/100));
         userRepository.save(driverUser);
 
+        reporterService.report(new ReportDTO(ReportType.ORDER_PAYMENT, new OrderPaymentReport(order.getId())));
+
         return "Order was paid successfully";
     }
 
-    public String charge(Integer amount, String authentication) {
+    public String charge(Integer amount, String authentication) throws JsonProcessingException {
         String token = authentication.substring(7);
         String username = jwtService.extractSubject(token);
 
@@ -63,6 +72,9 @@ public class PaymentService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         user.setBalance(user.getBalance() + amount);
         userRepository.save(user);
+
+        reporterService.report(new ReportDTO(ReportType.CHARGE_BALANCE, new ChargeReport(amount, user.getId())));
+
         return "Balance charged successfully";
     }
 
