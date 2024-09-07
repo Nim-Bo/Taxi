@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: Taxi-User
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/taxi
+    username: postgres
+    password: postgres
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+rabbitmq:
+  queue:
+    notify-driver: notifier_queue
+    reporter: reporter_queue
+  routing:
+    notify-driver: notifier_key
+    reporter: reporter_key
+  exchange:
+    name: exchange
+
+logging:
+  level:
+    org:
+      springframework:
+        security: trace
+
+server:
+  port: 8080
+
+taxi:
+  distance:
+    max: 1000.0
+
+sms-api:
+  config:
+    X-API-KEY: "YOUR-TOKEN-HERE"
+    line-number: "30004505000017"
+  url:
+    like-to-like: "https://api.sms.ir/v1/send/likeToLike"
+
+pricing:
+  base-price:
+    10000
+  commission-percent:
+    17
+  vehicle:
+    CAR:
+      price-per-meter: 7.5
+    MOTOR:
+      price-per-meter: 5
+    TRUCK:
+      price-per-meter: 10
