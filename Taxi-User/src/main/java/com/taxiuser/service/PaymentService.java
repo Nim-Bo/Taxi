@@ -40,7 +40,7 @@ public class PaymentService {
     RedissonClient redisson;
 
     public String payOrder(String authentication) throws BadRequestException, JsonProcessingException {
-        String token = authentication.substring(7);
+        String token = authentication.substring(jwtService.getStartIndex());
         String username = jwtService.extractSubject(token);
 
         User user = userRepository.findByUsername(username)
@@ -82,7 +82,7 @@ public class PaymentService {
     }
 
     public String charge(Integer amount, String authentication) throws JsonProcessingException {
-        String token = authentication.substring(7);
+        String token = authentication.substring(jwtService.getStartIndex());
         String username = jwtService.extractSubject(token);
 
         User user = userRepository.findByUsername(username)

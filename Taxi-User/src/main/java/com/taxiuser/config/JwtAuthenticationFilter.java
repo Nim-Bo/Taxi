@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String jwt = authHeader.substring(7);
+        String jwt = authHeader.substring(jwtService.getStartIndex());
         String usernameOrPhone = jwtService.extractSubject(jwt);
 
         if(usernameOrPhone != null && SecurityContextHolder.getContext().getAuthentication() == null) {

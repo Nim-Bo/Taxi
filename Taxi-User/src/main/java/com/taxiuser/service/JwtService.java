@@ -3,6 +3,8 @@ package com.taxiuser.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,15 +17,20 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class JwtService {
 
-    private static final String SECRET = "2B152244007044565721614546A7D83B4B0926852CC70E519E9A6EBF37C58CB663C6EDE7CE51D8E57C960227B185427784BFF7A76BBAE9B4F80B16627456BF2E";
-    private static final long VALIDITY = TimeUnit.MINUTES.toMillis(30);
+    @Value("${secret-key}")
+    private String SECRET;
+    @Value("${token.expiration}")
+    private long VALIDITY;
+    @Value("${token.start-index}")
+    @Getter
+    private int startIndex;
 
     public String generateToken(UserDetails userDetails) {
         return Jwts
                 .builder()
                 .subject(userDetails.getUsername())
                 .issuedAt(Date.from(Instant.now()))
-                .expiration(Date.from(Instant.now().plusMillis(VALIDITY)))
+                .expiration(Date.from(Instant.now().plusMillis(TimeUnit.MINUTES.toMillis(VALIDITY))))
                 .signWith(generateKey())
                 .compact();
     }
@@ -33,7 +40,7 @@ public class JwtService {
                 .builder()
                 .subject(phone)
                 .issuedAt(Date.from(Instant.now()))
-                .expiration(Date.from(Instant.now().plusMillis(VALIDITY)))
+                .expiration(Date.from(Instant.now().plusMillis(TimeUnit.MINUTES.toMillis(VALIDITY))))
                 .signWith(generateKey())
                 .compact();
     }

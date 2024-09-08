@@ -86,7 +86,7 @@ public class AuthService {
     }
 
     public UserResponseDTO completeSignup(UserRegistrationDTO userRegistrationDTO, String authentication) throws RegistrationFailed, JsonProcessingException {
-        String token = authentication.substring(7);
+        String token = authentication.substring(jwtService.getStartIndex());
         String phone = jwtService.extractSubject(token);
         // Check Phone
         if(userRepository.existsByPhone(phone))

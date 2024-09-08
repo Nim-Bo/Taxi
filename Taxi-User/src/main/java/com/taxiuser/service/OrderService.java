@@ -43,7 +43,7 @@ public class OrderService {
     DriverRepository driverRepository;
 
     public OrderResponseDTO order(OrderRequestDTO orderDTO, String authentication) throws IncompleteOrderExists, DriverNotFound, UserIsDriving, JsonProcessingException {
-        String token = authentication.substring(7);
+        String token = authentication.substring(jwtService.getStartIndex());
         String username = jwtService.extractSubject(token);
 
         User user = userRepository.findByUsername(username)
@@ -92,7 +92,7 @@ public class OrderService {
     }
 
     public OrderResponseDTO userOrderInfo(String authentication) throws OrderNotFound {
-        String token = authentication.substring(7);
+        String token = authentication.substring(jwtService.getStartIndex());
         String username = jwtService.extractSubject(token);
 
         User user = userRepository.findByUsername(username)
