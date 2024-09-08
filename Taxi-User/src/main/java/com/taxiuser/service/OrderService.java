@@ -12,6 +12,7 @@ import com.taxiuser.mapper.OrderMapper;
 import com.taxiuser.model.Driver;
 import com.taxiuser.model.Order;
 import com.taxiuser.model.User;
+import com.taxiuser.repository.DriverRepository;
 import com.taxiuser.repository.OrderRepository;
 import com.taxiuser.repository.UserRepository;
 import lombok.AccessLevel;
@@ -39,6 +40,7 @@ public class OrderService {
     OrderRepository orderRepository;
     NotifyDriverProducer notifyDriverProducer;
     ReporterService reporterService;
+    DriverRepository driverRepository;
 
     public OrderResponseDTO order(OrderRequestDTO orderDTO, String authentication) throws IncompleteOrderExists, DriverNotFound, UserIsDriving, JsonProcessingException {
         String token = authentication.substring(7);
@@ -69,6 +71,9 @@ public class OrderService {
         User driverUser = driver.getUser();
         driverUser.setStatus("driving");
         userRepository.save(driverUser);
+
+        driver.setIsAvailable(false);
+        driverRepository.save(driver);
 
         Order orderWithId = orderRepository.save(order);
 

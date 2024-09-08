@@ -94,7 +94,7 @@ public class AuthService {
         RLock lock = redisson.getLock("signup-lock" + phone);
         User userWithId = null;
         try {
-            if (lock.tryLock(100, TimeUnit.MILLISECONDS)) {
+            if (lock.tryLock(300, TimeUnit.MILLISECONDS)) {
                 // Check Username
                 if (userRepository.existsByUsername(userRegistrationDTO.username().toLowerCase()))
                     throw new RegistrationFailed("Username already exists");

@@ -17,8 +17,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -31,6 +37,7 @@ public class PaymentService {
     OrderRepository orderRepository;
     PropertiesService propertiesService;
     ReporterService reporterService;
+    RedissonClient redisson;
 
     public String payOrder(String authentication) throws BadRequestException, JsonProcessingException {
         String token = authentication.substring(7);
@@ -46,20 +53,30 @@ public class PaymentService {
         if(user.getBalance() < order.getPrice())
             throw new BadRequestException("Not enough balance, please charge your balance");
 
-        order.setStatus("paid");
-        orderRepository.save(order);
+        RLock lock = redisson.getLock("order-payment-"+order.getId());
+        try {
+            if (lock.tryLock(10, TimeUnit.SECONDS)) {
+                order.setStatus("paid");
+                orderRepository.save(order);
 
-        user.setBalance(user.getBalance() - order.getPrice());
-        user.setStatus("free");
-        userRepository.save(user);
+                user.setBalance(user.getBalance() - order.getPrice());
+                user.setUpdatedAt(Date.from(Instant.now()));
+                user.setStatus("free");
+                userRepository.save(user);
 
-        Driver driver = order.getDriver();
-        User driverUser = driver.getUser();
-        Integer commission = propertiesService.getCommission();
-        driverUser.setBalance(driverUser.getBalance() + (order.getPrice() - (order.getPrice()*commission)/100));
-        userRepository.save(driverUser);
+                Driver driver = order.getDriver();
+                User driverUser = driver.getUser();
+                Integer commission = propertiesService.getCommission();
+                driverUser.setBalance(driverUser.getBalance() + (order.getPrice() - (order.getPrice() * commission) / 100));
+                userRepository.save(driverUser);
 
-        reporterService.report(new ReportDTO(ReportType.ORDER_PAYMENT, new OrderPaymentReport(order.getId())));
+                reporterService.report(new ReportDTO(ReportType.ORDER_PAYMENT, new OrderPaymentReport(order.getId())));
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Interrupted while trying to pay");
+        } finally {
+            lock.unlock();
+        }
 
         return "Order was paid successfully";
     }
