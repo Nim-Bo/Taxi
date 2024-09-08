@@ -76,9 +76,9 @@ public class AuthService {
         return "Verification code has been sent";
     }
 
-    public TokenResponse verify(String phone, Integer code) throws InvalidVerificationCode {
-        SimpleResponse verification = verifyService.verify(phone, code);
-        if (!verification.statusCode().equals(200))
+    public TokenResponse verify(String phone, Integer code) throws BadRequestException {
+        Boolean verification = verifyService.verify(phone, code);
+        if (!verification)
             throw new InvalidVerificationCode();
         RSetCache<String> signupCache = redisson.getSetCache("signupCache");
         signupCache.add(phone, 30, TimeUnit.MINUTES);

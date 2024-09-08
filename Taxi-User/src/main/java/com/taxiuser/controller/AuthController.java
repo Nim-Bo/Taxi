@@ -32,7 +32,7 @@ public class AuthController {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<TokenResponse> verify(@RequestParam String phone, Integer code) throws InvalidVerificationCode {
+    public ResponseEntity<TokenResponse> verify(@RequestParam String phone, Integer code) throws BadRequestException {
         TokenResponse response = authService.verify(phone, code);
         return ResponseEntity.ok(response);
     }
